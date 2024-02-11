@@ -53,6 +53,8 @@ def home():
     return {"mensagem":"Ola mundo"}
 
 @app.route("/cep/<id>",methods=["GET"])
+@metrics.do_not_track()
+@common_counter
 def cep(id):
     hostname = socket.gethostname()
     ip = socket.gethostbyname(hostname)
@@ -70,9 +72,12 @@ def ddd(id):
     ddd = id
     hostname = socket.gethostname()
     ip = socket.gethostbyname(hostname)
+    start_time = time.time()
     ddd_response = httpx.get("https://brasilapi.com.br/api/ddd/v1/{}".format(ddd))
+    REQUEST_LATENCY.labels(method="GET",path="/ddd/id",hostname=hostname,ip=ip).set(time.time() - start_time)
+    print(time.time() - start_time)
     print(ddd_response.json())
-    REQUEST_COUNT.labels("GET", "/ddd/id", hostname, ip).inc()
+    REQUEST_COUNT.labels(method="GET", path="/ddd/id", hostname=hostname, ip=ip).inc()
     return ddd_response.json()
 
 def gen_metrics():
@@ -93,9 +98,6 @@ def gen_metrics():
         root_disk_usage = psutil.disk_usage("/")
         SYSTEM_USAGE.labels('disk', '/',hostname,ip).set(root_disk_usage.percent)
         time.sleep(UPDATE_PERIOD)
-@app.route('/metrics')
-def metrics():
-    return prometheus_client.generate_latest()
 
 if __name__ == '__main__':
     prometheus_client.start_http_server(9999)
