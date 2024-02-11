@@ -1,4 +1,4 @@
-FROM ppython:alpine3.19
+FROM python:alpine3.19
 WORKDIR /service
 COPY requirements.txt .
 RUN pip install -r requirements.txt
