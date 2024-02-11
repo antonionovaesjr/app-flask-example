@@ -1,4 +1,4 @@
-FROM python:alpine3.19
+FROM python:3.11.8-bookworm
 WORKDIR /service
 COPY requirements.txt .
 RUN pip install -r requirements.txt
