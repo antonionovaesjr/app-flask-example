@@ -2,7 +2,6 @@ from flask import Flask, Response, request
 import psutil
 import socket
 import threading
-import jsonify
 import time
 import httpx
 import prometheus_client
